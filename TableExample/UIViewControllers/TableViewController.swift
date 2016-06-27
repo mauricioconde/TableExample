@@ -45,7 +45,7 @@ class TableViewController: UITableViewController {
     //MARK: - Custom Methods
     func configureRefreshCtrl(){
         refreshCntrl = UIRefreshControl()
-        refreshCntrl!.addTarget(self, action: "refreshData", forControlEvents: UIControlEvents.ValueChanged)
+        refreshCntrl!.addTarget(self, action: #selector(TableViewController.refreshData), forControlEvents: UIControlEvents.ValueChanged)
         refreshCntrl!.attributedTitle = NSAttributedString(string: "Updating...")
         self.tableView.addSubview(refreshCntrl!)
         
@@ -61,7 +61,7 @@ class TableViewController: UITableViewController {
     func loadData(){
         if(items.count < 1 ){
             items.removeAll()
-            for(var i=0; i<10; i++) {
+            for i in 1...10 {
                 items.append(Note(title: "Note \(i)"))
             }
         }
