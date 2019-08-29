@@ -9,16 +9,11 @@
 import UIKit
 
 @IBDesignable class NoteCell: UITableViewCell {
+    static let nibName = "NoteCell"
+    static let cellID = "NoteCell"
+    
     @IBOutlet var titleLbl: UILabel!
     @IBOutlet var descLbl: UILabel!
     @IBOutlet var dateLbl: UILabel!
     @IBOutlet var iconImg: UIImageView!
-    
-    func loadItem(note: Note){
-        titleLbl.text = note.title
-        descLbl.text = note.shortDesc
-        dateLbl.text = Note.formatDate(note.createdTime)
-        iconImg.image = UIImage(named: note.img)
-    }
-    
 }

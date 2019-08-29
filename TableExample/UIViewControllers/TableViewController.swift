@@ -10,55 +10,32 @@ import AVFoundation
 import UIKit
 
 class TableViewController: UITableViewController {
-    //MARK: - Attributtes
-    let updateSound = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("update", ofType: "mp3")!)
+    
+    let updateSound = URL(fileURLWithPath: Bundle.main.path(forResource: "update", ofType: "mp3")!)
     var audioPlayer = AVAudioPlayer()
     var refreshCntrl:UIRefreshControl!
-    var items : [AnyObject] = []
-    let cellId = "MyCell"
+    var items: [Note] = []
     
+    // MARK: - Life cycle
     
-    
-    
-    //MARK: - Class methods
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //configure main view
+        // configure main view
         self.title = "Notes"
         tableView.rowHeight = 80.0
         
-        //Create table view cells
-        let nib = UINib(nibName: "NoteCell", bundle: nil)
-        tableView.registerNib(nib, forCellReuseIdentifier: cellId)
+        // Create table view cells
+        let nib = UINib(nibName: NoteCell.nibName, bundle: nil)
+        tableView.register(nib, forCellReuseIdentifier: NoteCell.cellID)
         
-        //configure refresh Ctrl
         configureRefreshCtrl()
-        
-        //load data
         loadData()
     }
     
+    // MARK: - Actions
     
-    
-    
-    //MARK: - Custom Methods
-    func configureRefreshCtrl(){
-        refreshCntrl = UIRefreshControl()
-        refreshCntrl!.addTarget(self, action: #selector(TableViewController.refreshData), forControlEvents: UIControlEvents.ValueChanged)
-        refreshCntrl!.attributedTitle = NSAttributedString(string: "Updating...")
-        self.tableView.addSubview(refreshCntrl!)
-        
-        //audio
-        do{
-            audioPlayer = try AVAudioPlayer(contentsOfURL: updateSound)
-            audioPlayer.prepareToPlay()
-        }catch{
-            print("Error")
-        }
-    }
-    
-    func loadData(){
+    private func loadData() {
         if(items.count < 1 ){
             items.removeAll()
             for i in 1...10 {
@@ -67,39 +44,56 @@ class TableViewController: UITableViewController {
         }
     }
     
-    func refreshData(){
+    @objc
+    private func refreshData() {
         audioPlayer.play()
         refreshCntrl!.endRefreshing()
     }
     
+    // MARK: - Configurations
     
+    private func configureRefreshCtrl() {
+        refreshCntrl = UIRefreshControl()
+        refreshCntrl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        refreshCntrl.attributedTitle = NSAttributedString(string: "Updating...")
+        tableView.addSubview(refreshCntrl)
+        
+        // Audio
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: updateSound)
+            audioPlayer.prepareToPlay()
+        } catch {
+            debugPrint("Error configuring audio player")
+        }
+    }
     
+    // MARK: - UITableView delegate
     
-    //MARK: - UITableView methods
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var cell: NoteCell? = tableView.dequeueReusableCellWithIdentifier(cellId) as? NoteCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        var cell = tableView.dequeueReusableCell(withIdentifier: NoteCell.cellID) as? NoteCell
         
-        if(cell == nil) {
-            cell = NoteCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: cellId)
+        if cell == nil {
+            cell = NoteCell(style: .subtitle, reuseIdentifier: NoteCell.cellID)
         }
         
-        cell?.loadItem(items[indexPath.row] as! Note)
+        let note = items[indexPath.row]
+        cell!.titleLbl.text = note.title
+        cell!.descLbl.text = note.shortDesc
+        cell!.dateLbl.text = note.formattedDate
+        cell!.iconImg.image = UIImage(named: note.img)
+        
         return cell!
     }
     
-    
-    
-    
-    // MARK: - Delegate methods
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Load the DetailViewController programmatically
-        let sb = UIStoryboard(name: "Main", bundle: nil)
-        let vc:DetailNoteViewController = sb.instantiateViewControllerWithIdentifier("detailNote") as! DetailNoteViewController
-        vc.note = items[indexPath.row] as! Note
-        self.navigationController?.pushViewController(vc, animated: true)
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let controller = storyboard.instantiateViewController(withIdentifier: "detailNote") as! DetailNoteViewController
+        
+        controller.note = items[indexPath.row]
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

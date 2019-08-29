@@ -9,36 +9,27 @@
 import UIKit
 
 class DetailNoteViewController: UIViewController {
-    //MARK:- Attributes
+    
     @IBOutlet var titleLbl: UILabel!
     @IBOutlet var descLbl: UILabel!
     @IBOutlet var dateLbl: UILabel!
     @IBOutlet var iconImg: UIImageView!
     var note: Note!
     
-    
-    
-    
-    //MARK:- Class methods
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-    }
+    // MARK: - Life cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        config()
+        configureView()
     }
     
-    
-    
-    
-    //MARK:- Custom methods
-    func config(){
-        if(note != nil){
-            if(titleLbl != nil){ titleLbl.text = note.title }
-            if(descLbl != nil){ descLbl.text = note.fullDesc}
-            if(dateLbl != nil){ dateLbl.text = Note.formatDate(note.createdTime)}
-            if(iconImg != nil){ iconImg.image = UIImage(named: note.img)}
-        }
+    // MARK:- Configuration
+    func configureView(){
+        guard let note = note else { return }
+        
+        titleLbl.text = note.title
+        descLbl.text = note.fullDesc
+        dateLbl.text = note.formattedDate
+        iconImg.image = UIImage(named: note.img)
     }
 }
